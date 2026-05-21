@@ -9,3 +9,4 @@ server/uploads/*
 server/server/uploads/*
 npm-debug.log*
 *.log
+.codex/
