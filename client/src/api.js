@@ -66,6 +66,44 @@ export function fetchInitialData() {
   return Promise.all([apiJson("/api/cvs"), apiJson("/api/applications/runs")]);
 }
 
+export function fetchJobFeed({ cvId = "", status = "all", source = "all" } = {}) {
+  const params = new URLSearchParams();
+  if (cvId) params.set("cvId", cvId);
+  if (status) params.set("status", status);
+  if (source) params.set("source", source);
+  return apiJson(`/api/jobs?${params.toString()}`);
+}
+
+export function scrapeJobFeed({ cvId, keywords, location, sources, urls }) {
+  return apiJson("/api/jobs/scrape", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ cvId, keywords, location, sources, urls })
+  });
+}
+
+export function updateJobFeedState(id, updates) {
+  return apiJson(`/api/jobs/${id}/state`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(updates)
+  });
+}
+
+export function analyzeJobFeedItem(id, { cvId }) {
+  return apiJson(`/api/jobs/${id}/analyze`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ cvId })
+  });
+}
+
 export function uploadCvFile(file) {
   const formData = new FormData();
   formData.append("cv", file);

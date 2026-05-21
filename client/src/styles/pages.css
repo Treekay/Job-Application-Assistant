@@ -844,3 +844,249 @@
   color: #31443d;
   font-size: 0.92rem;
 }
+
+.jobFeedLayout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.jobFeedControls,
+.jobFeedResults {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid #dfe7e2;
+  border-radius: 8px;
+  box-shadow: 0 18px 50px rgba(35, 58, 48, 0.08);
+}
+
+.jobFeedControls {
+  position: sticky;
+  top: 28px;
+}
+
+.jobSourceGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.jobSourceGrid label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 8px 10px;
+  color: #214c40;
+  background: #f8faf8;
+  border: 1px solid #e4ebe7;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.jobSourceGrid input {
+  accent-color: #0d7b61;
+}
+
+.jobKeywordPresets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.jobKeywordPresets button {
+  min-height: 32px;
+  padding: 6px 10px;
+  color: #214c40;
+  background: #f8faf8;
+  border: 1px solid #dfe7e2;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.jobKeywordPresets button:hover {
+  color: #0d3f33;
+  background: #e8f5ef;
+  border-color: #13a881;
+}
+
+.jobFeedMessage,
+.jobFeedError {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.jobFeedMessage {
+  color: #17463a;
+  background: #e8f5ef;
+  border: 1px solid #cce4da;
+}
+
+.jobFeedError {
+  color: #8f2d23;
+  background: #fff7f5;
+  border: 1px solid #f1c8c2;
+}
+
+.jobFeedToolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px 150px;
+  gap: 10px;
+  align-items: center;
+}
+
+.jobFeedToolbar div {
+  display: grid;
+  gap: 2px;
+}
+
+.jobFeedToolbar strong {
+  color: #17211d;
+}
+
+.jobFeedToolbar span {
+  overflow: hidden;
+  color: #667970;
+  font-size: 0.88rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jobFeedToolbar select {
+  min-height: 40px;
+  color: #17211d;
+  background: #ffffff;
+  border: 1px solid #cfdbd5;
+  border-radius: 8px;
+  padding: 0 10px;
+}
+
+.jobCardList {
+  display: grid;
+  gap: 12px;
+}
+
+.jobCard {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  background: #f8faf8;
+  border: 1px solid #e4ebe7;
+  border-radius: 8px;
+}
+
+.jobCardHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+}
+
+.jobCardHeader span {
+  color: #0d7b61;
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.jobCardHeader h2 {
+  margin: 3px 0 5px;
+  color: #17211d;
+  font-size: 1.1rem;
+}
+
+.jobCardHeader p {
+  margin: 0;
+  color: #667970;
+  font-size: 0.9rem;
+}
+
+.jobCardHeader strong {
+  display: grid;
+  min-width: 62px;
+  min-height: 44px;
+  place-items: center;
+  color: #0d3f33;
+  background: #e8f5ef;
+  border: 1px solid #cce4da;
+  border-radius: 8px;
+  font-size: 1.25rem;
+}
+
+.jobMetaGrid {
+  display: grid;
+  grid-template-columns: 1.2fr repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.jobMetaGrid span,
+.workRightsBadge {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  padding: 7px 9px;
+  color: #34554c;
+  background: #ffffff;
+  border: 1px solid #dfe7e2;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workRightsBadge.risk {
+  color: #8f2d23;
+  background: #fff7f5;
+  border-color: #f1c8c2;
+}
+
+.workRightsBadge.ok {
+  color: #0d5d4b;
+  background: #e8f5ef;
+  border-color: #cce4da;
+}
+
+.jobKeywords em {
+  color: #667970;
+  font-size: 0.88rem;
+  font-style: normal;
+}
+
+.jobCardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.jobCardActions a,
+.jobCardActions button {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 10px;
+  color: #214c40;
+  text-decoration: none;
+  background: #ffffff;
+  border: 1px solid #cfdbd5;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.jobCardActions a:hover,
+.jobCardActions button:hover {
+  color: #0d3f33;
+  background: #e8f5ef;
+  border-color: #13a881;
+}

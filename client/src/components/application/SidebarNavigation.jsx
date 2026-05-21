@@ -1,6 +1,7 @@
 import React from "react";
 import {
   BarChart3,
+  BriefcaseBusiness,
   FileText,
   LayoutDashboard,
   Mail,
@@ -9,6 +10,7 @@ import {
 
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "jobs", label: "Job Feed", icon: BriefcaseBusiness },
   { id: "resume", label: "Generate Resume", icon: FileText },
   { id: "cover", label: "Cover Letter & Email", icon: Mail },
   { id: "analysis", label: "Analysis & Coach", icon: BarChart3 }

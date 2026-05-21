@@ -11,10 +11,12 @@ import { ApplicationWorkspace } from "./pages/ApplicationWorkspace.jsx";
 import { AnalysisModulePage } from "./pages/AnalysisModulePage.jsx";
 import { AuthPage } from "./pages/AuthPage.jsx";
 import { CoverLetterEmailPage } from "./pages/CoverLetterEmailPage.jsx";
+import { JobFeedPage } from "./pages/JobFeedPage.jsx";
 import { ResumeModulePage } from "./pages/ResumeModulePage.jsx";
 
 const pages = {
   dashboard: ApplicationWorkspace,
+  jobs: JobFeedPage,
   resume: ResumeModulePage,
   cover: CoverLetterEmailPage,
   analysis: AnalysisModulePage

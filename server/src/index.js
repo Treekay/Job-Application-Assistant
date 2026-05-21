@@ -7,6 +7,12 @@ import { fileURLToPath } from "node:url";
 import { extractCvText } from "./extractText.js";
 import { runApplicationAgent, runCoachAgent } from "./agent.js";
 import {
+  extractCvKeywords,
+  scoreJobAgainstCv,
+  scrapeJobSearch,
+  scrapeJobUrls
+} from "./jobFeed.js";
+import {
   createSession,
   createUser,
   deleteCv,
@@ -14,16 +20,20 @@ import {
   deleteSession,
   findUserByCredentials,
   getCv,
+  getJob,
   getRun,
   getSessionUser,
+  listJobs,
   listCvs,
   listRuns,
   saveCv,
   saveRun,
   saveRunCoachInsights,
+  updateJobState,
   updateRunAnalysis,
   updateRunStageData,
-  updateRunStatus
+  updateRunStatus,
+  upsertScrapedJobs
 } from "./database.js";
 
 dotenv.config();
@@ -120,6 +130,25 @@ function validateCredentials({ username = "", password = "" }) {
   }
 
   return { username: normalizedUsername, password };
+}
+
+function normalizeStringList(value, fallback = []) {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item).trim()).filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(/\n|,/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return fallback;
+}
+
+function sanitizeSearchText(value = "") {
+  return String(value).trim().replace(/\s+/g, " ").slice(0, 180);
 }
 
 function getBearerToken(request) {
@@ -232,6 +261,7 @@ app.post(
 
 app.use("/api/cvs", requireAuth);
 app.use("/api/applications", requireAuth);
+app.use("/api/jobs", requireAuth);
 
 app.get(
   "/api/cvs",
@@ -274,6 +304,141 @@ app.delete(
   asyncRoute(async (request, response) => {
     const deleted = await deleteCv(request.auth.user._id, request.params.id);
     response.json({ deleted });
+  })
+);
+
+app.get(
+  "/api/jobs",
+  asyncRoute(async (request, response) => {
+    const jobs = await listJobs(request.auth.user._id, {
+      cvId: request.query.cvId || "",
+      status: request.query.status || "all",
+      source: request.query.source || "all",
+      limit: request.query.limit || 80
+    });
+    response.json({ jobs });
+  })
+);
+
+app.post(
+  "/api/jobs/scrape",
+  asyncRoute(async (request, response) => {
+    const {
+      cvId,
+      keywords = "",
+      location = "Auckland",
+      sources = ["seek", "indeed"],
+      urls = []
+    } = request.body || {};
+
+    if (!cvId) {
+      response.status(400).json({ message: "Select a CV before refreshing the job feed." });
+      return;
+    }
+
+    const cv = await getCv(request.auth.user._id, cvId);
+    if (!cv) {
+      response.status(404).json({ message: "Selected CV was not found." });
+      return;
+    }
+
+    const fallbackKeywords = extractCvKeywords(cv.text, 10).slice(0, 8).join(" ");
+    const searchKeywords = sanitizeSearchText(keywords || fallbackKeywords);
+    const selectedSources = normalizeStringList(sources, ["seek", "indeed"]);
+    const directUrls = normalizeStringList(urls);
+    const preferredKeywords = extractCvKeywords(`${keywords} ${cv.text}`, 32);
+
+    const [searchResult, urlResult] = await Promise.all([
+      searchKeywords
+        ? scrapeJobSearch({
+            sources: selectedSources,
+            keywords: searchKeywords,
+            location: sanitizeSearchText(location) || "Auckland"
+          })
+        : { jobs: [], errors: [], discoveredCount: 0 },
+      directUrls.length ? scrapeJobUrls(directUrls) : { jobs: [], errors: [] }
+    ]);
+
+    const scoredJobs = [...searchResult.jobs, ...urlResult.jobs].map((job) => ({
+      ...job,
+      ...scoreJobAgainstCv(job, cv.text, preferredKeywords)
+    }));
+    const savedJobs = await upsertScrapedJobs(request.auth.user._id, cvId, scoredJobs);
+    const jobs = await listJobs(request.auth.user._id, { cvId, limit: 80 });
+
+    response.json({
+      jobs,
+      imported: savedJobs.length,
+      discovered: searchResult.discoveredCount || 0,
+      errors: [...(searchResult.errors || []), ...(urlResult.errors || [])]
+    });
+  })
+);
+
+app.patch(
+  "/api/jobs/:id/state",
+  asyncRoute(async (request, response) => {
+    const job = await updateJobState(request.auth.user._id, request.params.id, request.body || {});
+
+    if (!job) {
+      response.status(404).json({ message: "Job was not found." });
+      return;
+    }
+
+    response.json({ job });
+  })
+);
+
+app.post(
+  "/api/jobs/:id/analyze",
+  asyncRoute(async (request, response) => {
+    const job = await getJob(request.auth.user._id, request.params.id);
+
+    if (!job) {
+      response.status(404).json({ message: "Job was not found." });
+      return;
+    }
+
+    const cvId = request.body?.cvId || job.cvId;
+    if (!cvId) {
+      response.status(400).json({ message: "Select a CV before analyzing this job." });
+      return;
+    }
+
+    const cv = await getCv(request.auth.user._id, cvId);
+    if (!cv) {
+      response.status(404).json({ message: "Selected CV was not found." });
+      return;
+    }
+
+    const jobDescription = job.description || [job.title, job.company, job.location].filter(Boolean).join("\n");
+    if (!jobDescription) {
+      response.status(400).json({ message: "This saved job does not include enough text to analyze." });
+      return;
+    }
+
+    const result = await runApplicationAgent({
+      cvText: cv.text,
+      jobDescription,
+      jobUrl: job.url || ""
+    });
+    const runId = await saveRun(request.auth.user._id, {
+      cvId: cv._id,
+      cvFileName: cv.fileName,
+      companyName: result.companyName || job.company || "",
+      roleTitle: result.roleTitle || job.title || "",
+      jobDescription,
+      jobUrl: job.url || "",
+      sourceJobId: job._id,
+      result
+    });
+
+    await updateJobState(request.auth.user._id, request.params.id, { viewed: true });
+
+    response.json({
+      id: runId.toString(),
+      ...result
+    });
   })
 );
 

@@ -37,6 +37,16 @@
     grid-template-columns: 1fr;
   }
 
+  .jobFeedLayout,
+  .jobFeedToolbar,
+  .jobMetaGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .jobFeedControls {
+    position: static;
+  }
+
   .traceList {
     grid-template-columns: 1fr;
   }
@@ -106,5 +116,13 @@
 
   .dashboardStatusBar {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .jobSourceGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .jobCardHeader {
+    grid-template-columns: 1fr;
   }
 }

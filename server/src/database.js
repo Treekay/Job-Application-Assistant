@@ -90,6 +90,41 @@ function sanitizeStringArray(items, maxItems = 8, maxLength = 200) {
   return items.map((item) => sanitizeString(item, maxLength)).filter(Boolean).slice(0, maxItems);
 }
 
+function serializeJob(job) {
+  return {
+    ...job,
+    _id: job._id.toString(),
+    userId: job.userId?.toString?.() || job.userId || null,
+    cvId: job.cvId?.toString?.() || job.cvId || null,
+    viewed: Boolean(job.viewed),
+    applied: Boolean(job.applied),
+    matchedKeywords: Array.isArray(job.matchedKeywords) ? job.matchedKeywords : [],
+    workRights: job.workRights || { status: "unknown", label: "Not found" }
+  };
+}
+
+function sanitizeJobState(updates = {}) {
+  const setFields = {
+    updatedAt: new Date()
+  };
+
+  if (typeof updates.viewed === "boolean") {
+    setFields.viewed = updates.viewed;
+    setFields.viewedAt = updates.viewed ? new Date() : null;
+  }
+
+  if (typeof updates.applied === "boolean") {
+    setFields.applied = updates.applied;
+    setFields.appliedAt = updates.applied ? new Date() : null;
+  }
+
+  if (typeof updates.notes === "string") {
+    setFields.notes = sanitizeString(updates.notes, 1200);
+  }
+
+  return setFields;
+}
+
 function sanitizeStageValue(key, value) {
   if (key === "interviewRounds") {
     return sanitizeInterviewRounds(value);
@@ -132,6 +167,9 @@ export async function connectDatabase() {
     db.collection("runs").createIndex({ userId: 1, createdAt: -1 }),
     db.collection("cvs").createIndex({ createdAt: -1 }),
     db.collection("cvs").createIndex({ userId: 1, createdAt: -1 }),
+    db.collection("jobs").createIndex({ userId: 1, matchScore: -1, postedAt: -1 }),
+    db.collection("jobs").createIndex({ userId: 1, scrapedAt: -1 }),
+    db.collection("jobs").createIndex({ userId: 1, dedupeKey: 1 }, { unique: true }),
     db.collection("users").createIndex({ username: 1 }, { unique: true }),
     db.collection("sessions").createIndex({ token: 1 }, { unique: true }),
     db.collection("sessions").createIndex({ createdAt: 1 })
@@ -284,6 +322,139 @@ export async function deleteCv(userId, id) {
     userId: toUserId(userId)
   });
   return result.deletedCount > 0;
+}
+
+export async function upsertScrapedJobs(userId, cvId, jobs = []) {
+  const database = await connectDatabase();
+  requireDatabase(database);
+
+  const userObjectId = toUserId(userId);
+  const cvObjectId = cvId ? toObjectId(cvId) : null;
+  const now = new Date();
+  const saved = [];
+
+  for (const job of jobs) {
+    const dedupeKey = sanitizeString(job.dedupeKey, 220);
+    if (!dedupeKey) continue;
+
+    const setFields = {
+      source: sanitizeString(job.source, 40) || "manual",
+      sourceLabel: sanitizeString(job.sourceLabel, 80) || "Manual",
+      sourceJobId: sanitizeString(job.sourceJobId, 160),
+      dedupeKey,
+      title: sanitizeString(job.title, 220) || "Untitled role",
+      company: sanitizeString(job.company, 180),
+      location: sanitizeString(job.location, 160),
+      url: sanitizeString(job.url, 1200),
+      description: sanitizeString(job.description, 14000),
+      postedAt: job.postedAt || null,
+      closingDate: job.closingDate || null,
+      isOpen: job.isOpen !== false,
+      workRights: job.workRights || { status: "unknown", label: "Not found" },
+      matchScore: Number(job.matchScore) || 0,
+      matchedKeywords: sanitizeStringArray(job.matchedKeywords, 20, 80),
+      keywordCount: Number(job.keywordCount) || 0,
+      cvId: cvObjectId,
+      scrapedAt: job.scrapedAt || now,
+      updatedAt: now
+    };
+
+    await database.collection("jobs").updateOne(
+      { userId: userObjectId, dedupeKey },
+      {
+        $set: setFields,
+        $setOnInsert: {
+          userId: userObjectId,
+          viewed: false,
+          applied: false,
+          createdAt: now
+        }
+      },
+      { upsert: true }
+    );
+
+    const savedJob = await database.collection("jobs").findOne({
+      userId: userObjectId,
+      dedupeKey
+    });
+    if (savedJob) saved.push(serializeJob(savedJob));
+  }
+
+  return saved;
+}
+
+export async function listJobs(
+  userId,
+  { cvId = "", status = "all", source = "all", limit = 80 } = {}
+) {
+  const database = await connectDatabase();
+  if (!database) {
+    return [];
+  }
+
+  const filter = { userId: toUserId(userId) };
+  if (cvId && ObjectId.isValid(cvId)) {
+    filter.cvId = toObjectId(cvId);
+  }
+  if (source !== "all") {
+    filter.source = source;
+  }
+  if (status === "new") {
+    filter.viewed = false;
+    filter.applied = false;
+  }
+  if (status === "viewed") {
+    filter.viewed = true;
+    filter.applied = false;
+  }
+  if (status === "applied") {
+    filter.applied = true;
+  }
+  if (status === "open") {
+    filter.isOpen = true;
+  }
+  if (status === "expired") {
+    filter.isOpen = false;
+  }
+
+  const jobs = await database
+    .collection("jobs")
+    .find(filter, { projection: { description: 0 } })
+    .sort({ matchScore: -1, postedAt: -1, scrapedAt: -1 })
+    .limit(Math.max(1, Math.min(Number(limit) || 80, 200)))
+    .toArray();
+
+  return jobs.map(serializeJob);
+}
+
+export async function updateJobState(userId, id, updates = {}) {
+  const database = await connectDatabase();
+  requireDatabase(database);
+
+  const _id = toObjectId(id);
+  await database.collection("jobs").updateOne(
+    { _id, userId: toUserId(userId) },
+    {
+      $set: sanitizeJobState(updates)
+    }
+  );
+
+  const job = await database.collection("jobs").findOne(
+    { _id, userId: toUserId(userId) },
+    { projection: { description: 0 } }
+  );
+
+  return job ? serializeJob(job) : null;
+}
+
+export async function getJob(userId, id) {
+  const database = await connectDatabase();
+  requireDatabase(database);
+
+  return database.collection("jobs").findOne({
+    _id: toObjectId(id),
+    userId: toUserId(userId)
+  });
 }
 
 export async function saveRun(userId, run) {
