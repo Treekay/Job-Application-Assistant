@@ -327,6 +327,24 @@
   min-width: 0;
 }
 
+.trackerActions {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.trackerActions select {
+  width: 92px;
+  min-height: 34px;
+  color: #214c40;
+  background: #ffffff;
+  border: 1px solid #cfdbd5;
+  border-radius: 8px;
+  padding: 0 8px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
 .applicationProgress {
   position: relative;
   display: grid;
@@ -411,4 +429,17 @@
 
 .iconButton:hover {
   background: #ffece8;
+}
+
+.iconButton.neutral {
+  color: #214c40;
+  background: #ffffff;
+  border-color: #cfdbd5;
+  text-decoration: none;
+}
+
+.iconButton.neutral:hover {
+  color: #0d3f33;
+  background: #e8f5ef;
+  border-color: #13a881;
 }

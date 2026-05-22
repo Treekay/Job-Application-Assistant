@@ -15,8 +15,10 @@ import {
   fetchInitialData,
   fetchJobFeed,
   scrapeJobFeed,
+  trackJobFeedItem,
   updateJobFeedState
 } from "../api.js";
+import { applicationPriorities } from "../data.js";
 
 const sourceOptions = [
   { id: "seek", label: "SEEK" },
@@ -63,11 +65,13 @@ export function JobFeedPage({ onOpenRun }) {
   const [keywords, setKeywords] = useState("data software developer intern");
   const [location, setLocation] = useState("Auckland");
   const [selectedSources, setSelectedSources] = useState(["seek", "indeed"]);
+  const [defaultPriority, setDefaultPriority] = useState("medium");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(false);
   const [isScraping, setIsScraping] = useState(false);
   const [analyzingJobId, setAnalyzingJobId] = useState("");
+  const [trackingJobId, setTrackingJobId] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -182,6 +186,28 @@ export function JobFeedPage({ onOpenRun }) {
     }
   }
 
+  async function trackJob(job) {
+    setTrackingJobId(job._id);
+    setError("");
+    setMessage(`Adding ${job.title} to tracker`);
+
+    try {
+      const payload = await trackJobFeedItem(job._id, {
+        cvId: selectedCvId,
+        priority: defaultPriority
+      });
+      setMessage("Application record added to tracker.");
+      if (payload.id && onOpenRun) {
+        onOpenRun(payload.id);
+      }
+    } catch (trackError) {
+      setError(trackError.message);
+      setMessage("");
+    } finally {
+      setTrackingJobId("");
+    }
+  }
+
   function toggleSource(sourceId) {
     setSelectedSources((current) =>
       current.includes(sourceId)
@@ -273,6 +299,20 @@ export function JobFeedPage({ onOpenRun }) {
             ))}
           </div>
 
+          <label className="runSelector">
+            <span>Default priority</span>
+            <select
+              value={defaultPriority}
+              onChange={(event) => setDefaultPriority(event.target.value)}
+            >
+              {applicationPriorities.map((priority) => (
+                <option key={priority.id} value={priority.id}>
+                  {priority.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
           <button className="runButton" disabled={!selectedCvId || isScraping} type="submit">
             <RefreshCw size={17} />
             {isScraping ? "Searching..." : "Search Selected Platforms"}
@@ -348,6 +388,10 @@ export function JobFeedPage({ onOpenRun }) {
                   {!job.matchedKeywords?.length ? <em>No keyword hits yet</em> : null}
                 </div>
 
+                {job.descriptionPreview ? (
+                  <p className="jobDescriptionPreview">{job.descriptionPreview}</p>
+                ) : null}
+
                 <div className="jobCardActions">
                   <a href={job.url} target="_blank" rel="noreferrer">
                     <ExternalLink size={15} />
@@ -366,6 +410,18 @@ export function JobFeedPage({ onOpenRun }) {
                   >
                     <CheckCircle2 size={15} />
                     {job.applied ? "Applied" : "Mark applied"}
+                  </button>
+                  <button
+                    disabled={trackingJobId === job._id}
+                    type="button"
+                    onClick={() => trackJob(job)}
+                  >
+                    {trackingJobId === job._id ? (
+                      <Loader2 className="spin" size={15} />
+                    ) : (
+                      <BriefcaseBusiness size={15} />
+                    )}
+                    {trackingJobId === job._id ? "Adding" : "Add to tracker"}
                   </button>
                   <button
                     disabled={analyzingJobId === job._id}

@@ -8,6 +8,7 @@ export function DashboardHome({
   onDeleteRun,
   onOpenCvs,
   onOpenNewApplication,
+  onPriorityChange,
   onSelectRun,
   runs
 }) {
@@ -17,6 +18,7 @@ export function DashboardHome({
         activeStatus={activeStatus}
         runs={runs}
         onDeleteRun={onDeleteRun}
+        onPriorityChange={onPriorityChange}
         onSelectRun={onSelectRun}
       />
 

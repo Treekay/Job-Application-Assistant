@@ -104,6 +104,33 @@ export function analyzeJobFeedItem(id, { cvId }) {
   });
 }
 
+export function trackJobFeedItem(id, { cvId = "", priority = "medium" } = {}) {
+  return apiJson(`/api/jobs/${id}/track`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ cvId, priority })
+  });
+}
+
+export function createApplicationRecord({
+  companyName,
+  roleTitle,
+  jobDescription,
+  jobUrl,
+  priority,
+  cvId
+}) {
+  return apiJson("/api/applications/runs", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ companyName, roleTitle, jobDescription, jobUrl, priority, cvId })
+  });
+}
+
 export function uploadCvFile(file) {
   const formData = new FormData();
   formData.append("cv", file);
@@ -129,6 +156,16 @@ export function updateRunStage(id, status) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({ status })
+  });
+}
+
+export function updateRunPriority(id, priority) {
+  return apiJson(`/api/applications/runs/${id}/priority`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ priority })
   });
 }
 

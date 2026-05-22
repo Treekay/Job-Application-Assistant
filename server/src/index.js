@@ -14,6 +14,7 @@ import {
 } from "./jobFeed.js";
 import {
   createSession,
+  createTrackingRun,
   createUser,
   deleteCv,
   deleteRun,
@@ -31,6 +32,7 @@ import {
   saveRunCoachInsights,
   updateJobState,
   updateRunAnalysis,
+  updateRunPriority,
   updateRunStageData,
   updateRunStatus,
   upsertScrapedJobs
@@ -149,6 +151,21 @@ function normalizeStringList(value, fallback = []) {
 
 function sanitizeSearchText(value = "") {
   return String(value).trim().replace(/\s+/g, " ").slice(0, 180);
+}
+
+function buildJobDescriptionFromJob(job) {
+  return (
+    job.description ||
+    [
+      job.title,
+      job.company,
+      job.location,
+      job.sourceLabel ? `Source: ${job.sourceLabel}` : "",
+      job.url ? `Original posting: ${job.url}` : ""
+    ]
+      .filter(Boolean)
+      .join("\n")
+  );
 }
 
 function getBearerToken(request) {
@@ -411,7 +428,7 @@ app.post(
       return;
     }
 
-    const jobDescription = job.description || [job.title, job.company, job.location].filter(Boolean).join("\n");
+    const jobDescription = buildJobDescriptionFromJob(job);
     if (!jobDescription) {
       response.status(400).json({ message: "This saved job does not include enough text to analyze." });
       return;
@@ -442,6 +459,32 @@ app.post(
   })
 );
 
+app.post(
+  "/api/jobs/:id/track",
+  asyncRoute(async (request, response) => {
+    const job = await getJob(request.auth.user._id, request.params.id);
+
+    if (!job) {
+      response.status(404).json({ message: "Job was not found." });
+      return;
+    }
+
+    const runId = await createTrackingRun(request.auth.user._id, {
+      cvId: request.body?.cvId || job.cvId || "",
+      companyName: job.company || "",
+      roleTitle: job.title || "",
+      jobDescription: buildJobDescriptionFromJob(job),
+      jobUrl: job.url || "",
+      priority: request.body?.priority || "medium",
+      sourceJobId: job._id,
+      trackingSource: "job_feed"
+    });
+
+    await updateJobState(request.auth.user._id, request.params.id, { viewed: true });
+    response.status(201).json({ id: runId.toString() });
+  })
+);
+
 app.get(
   "/api/applications/runs",
   asyncRoute(async (_request, response) => {
@@ -449,10 +492,66 @@ app.get(
   })
 );
 
+app.post(
+  "/api/applications/runs",
+  asyncRoute(async (request, response) => {
+    const {
+      companyName = "",
+      roleTitle = "",
+      jobDescription = "",
+      jobUrl = "",
+      priority = "medium",
+      cvId = ""
+    } = request.body || {};
+
+    if (!companyName.trim() && !roleTitle.trim()) {
+      response.status(400).json({ message: "Add at least a company name or role title." });
+      return;
+    }
+
+    const cv = cvId ? await getCv(request.auth.user._id, cvId) : null;
+    if (cvId && !cv) {
+      response.status(404).json({ message: "Selected CV was not found." });
+      return;
+    }
+
+    const runId = await createTrackingRun(request.auth.user._id, {
+      cvId: cv?._id?.toString?.() || "",
+      cvFileName: cv?.fileName || "",
+      companyName,
+      roleTitle,
+      jobDescription,
+      jobUrl,
+      priority,
+      trackingSource: "manual"
+    });
+
+    response.status(201).json({ id: runId.toString() });
+  })
+);
+
 app.patch(
   "/api/applications/runs/:id/status",
   asyncRoute(async (request, response) => {
     const run = await updateRunStatus(request.auth.user._id, request.params.id, request.body.status);
+
+    if (!run) {
+      response.status(404).json({ message: "Match record was not found." });
+      return;
+    }
+
+    response.json({ run });
+  })
+);
+
+app.patch(
+  "/api/applications/runs/:id/priority",
+  asyncRoute(async (request, response) => {
+    const run = await updateRunPriority(
+      request.auth.user._id,
+      request.params.id,
+      request.body?.priority
+    );
 
     if (!run) {
       response.status(404).json({ message: "Match record was not found." });

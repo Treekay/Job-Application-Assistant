@@ -74,6 +74,12 @@ export const applicationStatuses = [
   { id: "result", label: "Result" }
 ];
 
+export const applicationPriorities = [
+  { id: "high", label: "High" },
+  { id: "medium", label: "Medium" },
+  { id: "low", label: "Low" }
+];
+
 export const resumeTemplates = [
   { id: "compact", label: "ATS Compact" },
   { id: "modern", label: "Modern" },

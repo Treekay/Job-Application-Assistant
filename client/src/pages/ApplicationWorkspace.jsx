@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
+  createApplicationRecord,
   deleteCvById,
   deleteRunById,
   fetchInitialData,
   runMatchAgent,
+  updateRunPriority,
   uploadCvFile
 } from "../api.js";
 import { CvLibraryView } from "../components/application/CvLibraryView.jsx";
@@ -30,6 +32,9 @@ export function ApplicationWorkspace({ onOpenRun }) {
   const [selectedCvId, setSelectedCvId] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [jobUrl, setJobUrl] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [roleTitle, setRoleTitle] = useState("");
+  const [priority, setPriority] = useState("medium");
   const [runs, setRuns] = useState([]);
   const [selectedRunId, setSelectedRunId] = useState("");
   const [isRunning, setIsRunning] = useState(false);
@@ -39,6 +44,7 @@ export function ApplicationWorkspace({ onOpenRun }) {
   const [status, setStatus] = useState("Demo output loaded");
 
   const canRun = Boolean(selectedCvId && (jobDescription.trim() || jobUrl.trim()) && !isRunning);
+  const canSaveRecord = Boolean((companyName.trim() || roleTitle.trim()) && !isRunning);
   async function loadData() {
     setIsLoadingData(true);
     setError("");
@@ -116,6 +122,19 @@ export function ApplicationWorkspace({ onOpenRun }) {
     }
   }
 
+  async function changeRunPriority(id, nextPriority) {
+    setError("");
+
+    try {
+      const payload = await updateRunPriority(id, nextPriority);
+      setRuns((current) =>
+        current.map((run) => (run._id === id ? { ...run, ...payload.run } : run))
+      );
+    } catch (priorityError) {
+      setError(priorityError.message);
+    }
+  }
+
   function selectRun(run) {
     setSelectedRunId(run._id);
     onOpenRun?.(run._id);
@@ -142,6 +161,30 @@ export function ApplicationWorkspace({ onOpenRun }) {
       setStatus("");
     } finally {
       setIsRunning(false);
+    }
+  }
+
+  async function saveManualRecord() {
+    setError("");
+    setStatus("Saving application record");
+
+    try {
+      const payload = await createApplicationRecord({
+        companyName,
+        roleTitle,
+        jobDescription,
+        jobUrl,
+        priority,
+        cvId: selectedCvId
+      });
+      setStatus("Application record saved.");
+      await loadData();
+      if (payload.id) {
+        onOpenRun?.(payload.id);
+      }
+    } catch (saveError) {
+      setError(saveError.message);
+      setStatus("");
     }
   }
 
@@ -184,6 +227,7 @@ export function ApplicationWorkspace({ onOpenRun }) {
             cvs={cvs}
             runs={runs}
             onDeleteRun={deleteRun}
+            onPriorityChange={changeRunPriority}
             onOpenCvs={() => setDashboardView("cvs")}
             onOpenNewApplication={() => setDashboardView("new")}
             onSelectRun={selectRun}
@@ -212,20 +256,28 @@ export function ApplicationWorkspace({ onOpenRun }) {
             cvFile={cvFile}
             cvs={cvs}
             error={error}
+            canSaveRecord={canSaveRecord}
+            companyName={companyName}
             isLoadingData={isLoadingData}
             isRunning={isRunning}
             isUploadingCv={isUploadingCv}
             jobDescription={jobDescription}
             jobUrl={jobUrl}
+            priority={priority}
+            roleTitle={roleTitle}
             selectedCvId={selectedCvId}
             status={status}
             onBack={() => setDashboardView("home")}
+            onCompanyNameChange={setCompanyName}
             onCvFileChange={setCvFile}
             onDeleteCv={deleteSelectedCv}
             onJobDescriptionChange={setJobDescription}
             onJobUrlChange={setJobUrl}
             onLoadData={loadData}
             onRunAgent={runAgent}
+            onPriorityChange={setPriority}
+            onRoleTitleChange={setRoleTitle}
+            onSaveRecord={saveManualRecord}
             onSelectCv={setSelectedCvId}
             onUploadCv={uploadCv}
           />

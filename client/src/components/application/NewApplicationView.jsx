@@ -2,6 +2,7 @@ import React from "react";
 import { ArrowLeft, Loader2, Send } from "lucide-react";
 import { CvManager } from "./CvManager.jsx";
 import { JobInput } from "./JobInput.jsx";
+import { applicationPriorities } from "../../data.js";
 
 const agentProgressSteps = [
   "Parse Resume",
@@ -37,6 +38,8 @@ export function AgentRunningProgress() {
 
 export function NewApplicationView({
   canRun,
+  canSaveRecord,
+  companyName,
   cvFile,
   cvs,
   error,
@@ -45,13 +48,19 @@ export function NewApplicationView({
   isUploadingCv,
   jobDescription,
   jobUrl,
+  priority,
+  roleTitle,
   onBack,
+  onCompanyNameChange,
   onCvFileChange,
   onDeleteCv,
   onJobDescriptionChange,
   onJobUrlChange,
   onLoadData,
+  onPriorityChange,
+  onRoleTitleChange,
   onRunAgent,
+  onSaveRecord,
   onSelectCv,
   onUploadCv,
   selectedCvId,
@@ -80,6 +89,40 @@ export function NewApplicationView({
 
         <form className="panel newApplicationPanel" onSubmit={onRunAgent}>
           <h2>Target job</h2>
+          <div className="manualRecordGrid">
+            <label className="jdBox">
+              <span>Company</span>
+              <input
+                className="detailInput"
+                value={companyName}
+                onChange={(event) => onCompanyNameChange(event.target.value)}
+                placeholder="Company name"
+              />
+            </label>
+            <label className="jdBox">
+              <span>Role title</span>
+              <input
+                className="detailInput"
+                value={roleTitle}
+                onChange={(event) => onRoleTitleChange(event.target.value)}
+                placeholder="Software Engineer"
+              />
+            </label>
+            <label className="jdBox">
+              <span>Priority</span>
+              <select
+                className="detailSelect"
+                value={priority}
+                onChange={(event) => onPriorityChange(event.target.value)}
+              >
+                {applicationPriorities.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
           <JobInput
             jobDescription={jobDescription}
             jobUrl={jobUrl}
@@ -89,6 +132,14 @@ export function NewApplicationView({
           <button className="runButton" type="submit" disabled={!canRun}>
             {isRunning ? <Loader2 className="spin" size={18} /> : <Send size={18} />}
             Run AI Match
+          </button>
+          <button
+            className="secondaryButton"
+            type="button"
+            disabled={!canSaveRecord}
+            onClick={onSaveRecord}
+          >
+            Save to tracker without AI
           </button>
           {isRunning ? <AgentRunningProgress /> : null}
           {error ? <p className="error">{error}</p> : <p className="status">{status}</p>}

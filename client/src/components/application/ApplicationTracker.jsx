@@ -1,6 +1,6 @@
 import React from "react";
-import { Trash2 } from "lucide-react";
-import { applicationStatuses } from "../../data.js";
+import { ExternalLink, Trash2 } from "lucide-react";
+import { applicationPriorities, applicationStatuses } from "../../data.js";
 import {
   formatRunDate,
   getRunStatus,
@@ -32,6 +32,7 @@ function progressRatio(run) {
 export function ApplicationTracker({
   activeStatus,
   onDeleteRun,
+  onPriorityChange,
   onSelectRun,
   runs
 }) {
@@ -57,6 +58,7 @@ export function ApplicationTracker({
                 <small>
                   {run.createdAt ? formatRunDate(run.createdAt) : "No date"} -{" "}
                   {getRunStatusLabel(run)}
+                  {run.trackingSource ? ` - ${run.trackingSource.replace("_", " ")}` : ""}
                 </small>
                 <div className="applicationProgress" style={{ "--progress": progressRatio(run) }}>
                   <div className="applicationProgressTrack" aria-hidden="true">
@@ -74,14 +76,38 @@ export function ApplicationTracker({
                   })}
                 </div>
               </button>
-              <button
-                className="iconButton"
-                type="button"
-                aria-label={`Delete ${getRunTitle(run)}`}
-                onClick={() => onDeleteRun(run._id)}
-              >
-                <Trash2 size={16} />
-              </button>
+              <div className="trackerActions">
+                <select
+                  aria-label={`Priority for ${getRunTitle(run)}`}
+                  value={run.priority || "medium"}
+                  onChange={(event) => onPriorityChange(run._id, event.target.value)}
+                >
+                  {applicationPriorities.map((priority) => (
+                    <option key={priority.id} value={priority.id}>
+                      {priority.label}
+                    </option>
+                  ))}
+                </select>
+                {run.jobUrl ? (
+                  <a
+                    className="iconButton neutral"
+                    href={run.jobUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`Open source job for ${getRunTitle(run)}`}
+                  >
+                    <ExternalLink size={16} />
+                  </a>
+                ) : null}
+                <button
+                  className="iconButton"
+                  type="button"
+                  aria-label={`Delete ${getRunTitle(run)}`}
+                  onClick={() => onDeleteRun(run._id)}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
           ))}
         </div>

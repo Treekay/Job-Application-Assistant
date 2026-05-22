@@ -4,10 +4,11 @@ import {
   fetchInitialData,
   generateRunCoach,
   rerunApplication,
+  updateRunPriority,
   updateRunStage,
   updateRunStageData
 } from "../api.js";
-import { applicationStatuses, resumeAccents } from "../data.js";
+import { applicationPriorities, applicationStatuses, resumeAccents } from "../data.js";
 import {
   formatRunDate,
   getRunResult,
@@ -96,6 +97,17 @@ export function ApplicationDetailPage({ runId, onBack, onOpenModule }) {
       updateRunInState(payload.run);
     } catch (statusError) {
       setError(statusError.message);
+    }
+  }
+
+  async function changePriority(priority) {
+    if (!selectedRun) return;
+
+    try {
+      const payload = await updateRunPriority(selectedRun._id, priority);
+      updateRunInState(payload.run);
+    } catch (priorityError) {
+      setError(priorityError.message);
     }
   }
 
@@ -191,6 +203,26 @@ export function ApplicationDetailPage({ runId, onBack, onOpenModule }) {
                 {status.label}
               </button>
             ))}
+          </section>
+
+          <section className="detailMetaPanel">
+            <label>
+              Priority
+              <select
+                value={selectedRun.priority || "medium"}
+                onChange={(event) => changePriority(event.target.value)}
+              >
+                {applicationPriorities.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div>
+              <strong>Source</strong>
+              <span>{selectedRun.trackingSource?.replace("_", " ") || "manual"}</span>
+            </div>
           </section>
 
           <section className="detailAction">

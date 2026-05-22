@@ -156,6 +156,16 @@
   font-size: 1rem;
 }
 
+.manualRecordGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.manualRecordGrid .jdBox:last-child {
+  grid-column: 1 / -1;
+}
+
 .moduleGrid {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
@@ -413,6 +423,41 @@
   color: #0d3f33;
   background: #e8f5ef;
   border-color: #13a881;
+}
+
+.detailMetaPanel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid #dfe7e2;
+  border-radius: 8px;
+  box-shadow: 0 18px 50px rgba(35, 58, 48, 0.08);
+}
+
+.detailMetaPanel label,
+.detailMetaPanel div {
+  display: grid;
+  gap: 6px;
+  min-width: 160px;
+  color: #214c40;
+  font-weight: 800;
+}
+
+.detailMetaPanel select {
+  min-height: 38px;
+  color: #17211d;
+  background: #ffffff;
+  border: 1px solid #cfdbd5;
+  border-radius: 8px;
+  padding: 0 10px;
+}
+
+.detailMetaPanel span {
+  color: #667970;
+  font-weight: 700;
+  text-transform: capitalize;
 }
 
 .detailAction {
@@ -1060,6 +1105,17 @@
   color: #667970;
   font-size: 0.88rem;
   font-style: normal;
+}
+
+.jobDescriptionPreview {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: #4d635b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .jobCardActions {

@@ -28,6 +28,7 @@ function runDisplayTitle(run) {
 }
 
 const APPLICATION_STATUSES = new Set(["saved", "applied", "interview", "result"]);
+const APPLICATION_PRIORITIES = new Set(["high", "medium", "low"]);
 const STAGE_DATA_FIELDS = new Set([
   "appliedNote",
   "interviewNotes",
@@ -48,9 +49,12 @@ function serializeRun(run) {
     ...run,
     _id: run._id.toString(),
     cvId: run.cvId?.toString?.() || run.cvId || null,
+    sourceJobId: run.sourceJobId?.toString?.() || run.sourceJobId || null,
     applicationStatus: APPLICATION_STATUSES.has(run.applicationStatus)
       ? run.applicationStatus
       : "saved",
+    priority: APPLICATION_PRIORITIES.has(run.priority) ? run.priority : "medium",
+    trackingSource: run.trackingSource || "ai_analysis",
     stageData: run.stageData || {},
     displayTitle: runDisplayTitle(run)
   };
@@ -65,6 +69,11 @@ function statusTimestampField(status) {
 
 function sanitizeString(value, maxLength = 4000) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+}
+
+function sanitizePriority(value) {
+  const priority = sanitizeString(value, 20).toLowerCase();
+  return APPLICATION_PRIORITIES.has(priority) ? priority : "medium";
 }
 
 function sanitizeInterviewRounds(rounds) {
@@ -347,6 +356,7 @@ export async function upsertScrapedJobs(userId, cvId, jobs = []) {
       location: sanitizeString(job.location, 160),
       url: sanitizeString(job.url, 1200),
       description: sanitizeString(job.description, 14000),
+      descriptionPreview: sanitizeString(job.description, 520),
       postedAt: job.postedAt || null,
       closingDate: job.closingDate || null,
       isOpen: job.isOpen !== false,
@@ -466,6 +476,8 @@ export async function saveRun(userId, run) {
     statusHistory: [{ status: "saved", changedAt: new Date() }],
     stageData: {},
     ...run,
+    priority: sanitizePriority(run.priority),
+    trackingSource: run.trackingSource || "ai_analysis",
     userId: toUserId(userId),
     createdAt: new Date()
   });
@@ -473,7 +485,40 @@ export async function saveRun(userId, run) {
   return result.insertedId;
 }
 
-export async function listRuns(userId, limit = 20) {
+export async function createTrackingRun(userId, run) {
+  const database = await connectDatabase();
+  requireDatabase(database);
+
+  const now = new Date();
+  const result = await database.collection("runs").insertOne({
+    applicationStatus: APPLICATION_STATUSES.has(run.applicationStatus)
+      ? run.applicationStatus
+      : "saved",
+    statusHistory: [
+      {
+        status: APPLICATION_STATUSES.has(run.applicationStatus) ? run.applicationStatus : "saved",
+        changedAt: now
+      }
+    ],
+    priority: sanitizePriority(run.priority),
+    trackingSource: run.trackingSource || "manual",
+    sourceJobId: run.sourceJobId || null,
+    cvId: run.cvId && ObjectId.isValid(run.cvId) ? toObjectId(run.cvId) : null,
+    cvFileName: sanitizeString(run.cvFileName, 240),
+    companyName: sanitizeString(run.companyName, 180),
+    roleTitle: sanitizeString(run.roleTitle, 220),
+    jobDescription: sanitizeString(run.jobDescription, 14000),
+    jobUrl: sanitizeString(run.jobUrl, 1200),
+    stageData: {},
+    result: null,
+    userId: toUserId(userId),
+    createdAt: now
+  });
+
+  return result.insertedId;
+}
+
+export async function listRuns(userId, limit = 100) {
   const database = await connectDatabase();
   if (!database) {
     return [];
@@ -494,6 +539,34 @@ export async function listRuns(userId, limit = 20) {
     .toArray();
 
   return runs.map(serializeRun);
+}
+
+export async function updateRunPriority(userId, id, priority) {
+  const database = await connectDatabase();
+  requireDatabase(database);
+
+  const _id = toObjectId(id);
+  const userObjectId = toUserId(userId);
+  await database.collection("runs").updateOne(
+    { _id, userId: userObjectId },
+    {
+      $set: {
+        priority: sanitizePriority(priority),
+        updatedAt: new Date()
+      }
+    }
+  );
+
+  const run = await database.collection("runs").findOne(
+    { _id, userId: userObjectId },
+    {
+      projection: {
+        cvText: 0
+      }
+    }
+  );
+
+  return run ? serializeRun(run) : null;
 }
 
 export async function updateRunStatus(userId, id, status) {
