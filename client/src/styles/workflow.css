@@ -1,0 +1,639 @@
+.workflowAuth,
+.workflowShell {
+  min-height: 100vh;
+  background: #eef3ef;
+}
+
+.workflowAuth {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 0.55fr);
+  gap: 28px;
+  align-items: center;
+  padding: 44px;
+}
+
+.workflowPoster,
+.workflowAuthPanel,
+.workflowPanel,
+.workflowStat {
+  background: #ffffff;
+  border: 1px solid #dfe7e2;
+  border-radius: 8px;
+  box-shadow: 0 18px 50px rgba(35, 58, 48, 0.08);
+}
+
+.workflowPoster {
+  min-height: 520px;
+  display: grid;
+  align-content: center;
+  padding: 48px;
+  color: #f7fbf8;
+  background: linear-gradient(135deg, rgba(15, 56, 48, 0.98), rgba(20, 133, 101, 0.9));
+}
+
+.workflowPoster span,
+.workflowHeader span,
+.workflowAuthPanel span {
+  color: #12a77f;
+  font-size: 0.82rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.workflowPoster span {
+  color: #7ce4cf;
+}
+
+.workflowPoster h1 {
+  max-width: 720px;
+  margin: 14px 0;
+  font-size: clamp(3rem, 7vw, 5.8rem);
+  line-height: 0.92;
+}
+
+.workflowPoster p {
+  max-width: 620px;
+  color: rgba(247, 251, 248, 0.76);
+  font-size: 1.1rem;
+}
+
+.workflowAuthPanel,
+.workflowForm,
+.workflowStack,
+.workflowDetail,
+.workflowDetail section {
+  display: grid;
+  gap: 14px;
+}
+
+.workflowAuthPanel {
+  padding: 28px;
+}
+
+.workflowAuthPanel h2,
+.workflowPanel h2,
+.workflowDetail h3 {
+  margin: 0;
+  color: #17211d;
+}
+
+.workflowAuthPanel label,
+.workflowForm label {
+  display: grid;
+  gap: 7px;
+  color: #214c40;
+  font-weight: 800;
+}
+
+.workflowAuthPanel input,
+.workflowForm input,
+.workflowForm select,
+.workflowForm textarea,
+.workflowDetail input,
+.workflowDetail textarea,
+.workflowApplicationCard select {
+  width: 100%;
+  min-height: 42px;
+  color: #17211d;
+  background: #ffffff;
+  border: 1px solid #cfdbd5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  outline: none;
+}
+
+.workflowForm textarea,
+.workflowDetail textarea {
+  min-height: 126px;
+  resize: vertical;
+}
+
+.workflowAuthPanel button,
+.workflowHeader button,
+.workflowPanel button,
+.workflowDetail button,
+.workflowSidebar button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  color: #09251e;
+  background: #f4c35d;
+  border: 1px solid #f4c35d;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.workflowAuthPanel button:disabled,
+.workflowPanel button:disabled {
+  color: #7d897f;
+  background: #e3e7e1;
+  border-color: #e3e7e1;
+  cursor: not-allowed;
+}
+
+.authSwitches {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.authSwitches button,
+.workflowHeader button,
+.workflowSidebar button,
+.panelTitle button {
+  color: #214c40;
+  background: #ffffff;
+  border-color: #cfdbd5;
+}
+
+.workflowShell {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+}
+
+.workflowSidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 20px;
+  padding: 22px;
+  background: #ffffff;
+  border-right: 1px solid #dfe7e2;
+}
+
+.workflowBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #0d3f33;
+}
+
+.workflowBrand div {
+  display: grid;
+}
+
+.workflowBrand span,
+.workflowMuted,
+.deadlineRow span,
+.workflowApplicationCard span,
+.workflowApplicationCard small,
+.workflowDetail p,
+.workflowDetail small {
+  color: #667970;
+}
+
+.workflowSidebar nav {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.workflowSidebar button {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.workflowSidebar button.active,
+.workflowSidebar button:hover,
+.workflowHeader button:hover,
+.panelTitle button:hover {
+  color: #0d3f33;
+  background: #e8f5ef;
+  border-color: #13a881;
+}
+
+.workflowContent {
+  display: grid;
+  align-content: start;
+  gap: 22px;
+  padding: 32px;
+}
+
+.workflowHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 126px;
+}
+
+.workflowHeader > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.workflowHeader h1 {
+  max-width: none;
+  margin: 8px 0 0;
+  color: #17211d;
+  font-size: clamp(2.25rem, 3.4vw, 3.8rem);
+  line-height: 1;
+  text-wrap: balance;
+}
+
+.workflowStats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.workflowStat {
+  display: grid;
+  gap: 5px;
+  padding: 18px;
+}
+
+.workflowStat strong {
+  color: #17211d;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.workflowPanel {
+  padding: 22px;
+}
+
+.panelTitle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 4px;
+  color: #214c40;
+}
+
+.panelTitle button {
+  margin-left: auto;
+}
+
+.panelTitle button + button {
+  margin-left: 0;
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.statusFilterCard,
+.deadlineRow,
+.workflowApplicationCard {
+  padding: 12px;
+  background: #f8faf8;
+  border: 1px solid #e4ebe7;
+  border-radius: 8px;
+}
+
+.statusFilterCard {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  min-height: 72px;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.statusFilterCard.active,
+.statusFilterCard:hover {
+  background: #e8f5ef;
+  border-color: #13a881;
+}
+
+.statusGrid strong {
+  color: #0d3f33;
+  font-size: 1.5rem;
+}
+
+.deadlineRow,
+.workflowList {
+  display: grid;
+  gap: 10px;
+}
+
+.workflowTwoColumn {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.applicationPage {
+  display: grid;
+  gap: 18px;
+}
+
+.applicationToolbar {
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.applicationToolbar > div {
+  display: grid;
+  gap: 4px;
+}
+
+.applicationToolbar button,
+.workflowPanel button.secondaryAction {
+  margin-left: 0;
+  color: #214c40;
+  background: #ffffff;
+  border-color: #cfdbd5;
+}
+
+.applicationCreatePage {
+  width: 100%;
+}
+
+.applicationCreateForm {
+  margin-top: 18px;
+}
+
+.applicationFormGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.65fr);
+  gap: 22px;
+}
+
+.applicationMainFields,
+.applicationSideFields {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+
+.inlineActions,
+.formFooter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inlineActions {
+  flex-wrap: wrap;
+}
+
+.formFooter {
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.applicationMainFields textarea {
+  min-height: 300px;
+}
+
+.applicationSideFields {
+  padding: 18px;
+  background: #f8faf8;
+  border: 1px solid #e4ebe7;
+  border-radius: 8px;
+}
+
+.applicationSideFields textarea {
+  min-height: 190px;
+}
+
+.emptyTracker {
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  color: #214c40;
+  text-align: center;
+  background: #f8faf8;
+  border: 1px dashed #cfdbd5;
+  border-radius: 8px;
+}
+
+.cvLibraryPage {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.75fr) minmax(0, 1.25fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.cvCreateGrid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.cvUploadPanel {
+  grid-column: 1 / -1;
+}
+
+.cvList {
+  display: grid;
+  gap: 10px;
+}
+
+.cvLibraryItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  background: #f8faf8;
+  border: 1px solid #e4ebe7;
+  border-radius: 8px;
+}
+
+.cvLibraryItem > button:first-child {
+  display: grid;
+  justify-items: start;
+  gap: 3px;
+  min-width: 0;
+  padding: 0;
+  color: #17211d;
+  text-align: left;
+  background: transparent;
+  border: 0;
+}
+
+.cvLibraryItem strong {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cvLibraryItem span {
+  color: #667970;
+}
+
+.workflowPanel button.dangerAction {
+  color: #8f2d23;
+  background: #fff7f5;
+  border-color: #f1c8c2;
+}
+
+.cvPreviewPanel {
+  min-height: 360px;
+}
+
+.cvPreviewPanel pre {
+  max-height: 520px;
+  overflow: auto;
+  margin: 14px 0 0;
+  padding: 14px;
+  color: #17211d;
+  background: #f8faf8;
+  border: 1px solid #e4ebe7;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cvPdfFrame {
+  width: 100%;
+  min-height: 680px;
+  margin-top: 14px;
+  background: #f8faf8;
+  border: 1px solid #e4ebe7;
+  border-radius: 8px;
+}
+
+.workflowApplicationCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 140px 120px auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.workflowApplicationCard > button {
+  display: grid;
+  justify-items: start;
+  gap: 3px;
+  min-width: 0;
+  padding: 0;
+  color: #17211d;
+  text-align: left;
+  background: transparent;
+  border: 0;
+}
+
+.workflowApplicationCard strong,
+.deadlineRow strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #17211d;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detailHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px;
+  color: #f7fbf8;
+  background: linear-gradient(135deg, #123930, #148565);
+  border-radius: 8px;
+}
+
+.detailHeader span,
+.detailHeader p {
+  color: rgba(247, 251, 248, 0.76);
+}
+
+.detailHeader h2 {
+  margin: 4px 0;
+  color: #ffffff;
+  font-size: 2rem;
+}
+
+.detailHeader a {
+  color: #ffffff;
+  font-weight: 850;
+}
+
+.workflowDetailGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.workflowDetail section {
+  padding: 14px;
+  background: #f8faf8;
+  border: 1px solid #e4ebe7;
+  border-radius: 8px;
+}
+
+.applicationInsightGrid {
+  align-items: start;
+}
+
+.insightList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+  color: #17211d;
+}
+
+.fitScore {
+  display: inline-flex;
+  width: fit-content;
+  padding: 8px 10px;
+  color: #0d3f33;
+  background: #e8f5ef;
+  border: 1px solid #13a881;
+  border-radius: 8px;
+}
+
+.workflowMessage,
+.workflowError {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.workflowMessage {
+  color: #17463a;
+  background: #e8f5ef;
+  border: 1px solid #cce4da;
+}
+
+.workflowError {
+  color: #8f2d23;
+  background: #fff7f5;
+  border: 1px solid #f1c8c2;
+}
+
+@media (max-width: 980px) {
+  .workflowAuth,
+  .workflowShell,
+  .workflowTwoColumn,
+  .workflowDetailGrid,
+  .applicationFormGrid,
+  .cvLibraryPage,
+  .cvCreateGrid,
+  .workflowStats,
+  .statusGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .workflowSidebar {
+    position: static;
+    height: auto;
+  }
+
+  .workflowApplicationCard {
+    grid-template-columns: 1fr;
+  }
+
+  .cvLibraryItem {
+    grid-template-columns: 1fr;
+  }
+}

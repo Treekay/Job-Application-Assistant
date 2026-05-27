@@ -1,6 +1,7 @@
 node_modules
 .env
 .env.local
+api/JobWorkflow.Api/appsettings.Local.json
 dist
 uploads/*
 !uploads/.gitkeep
@@ -10,3 +11,10 @@ server/server/uploads/*
 npm-debug.log*
 *.log
 .codex/
+.build-check/
+*.db
+*.db-shm
+*.db-wal
+bin/
+obj/
+.nuget/

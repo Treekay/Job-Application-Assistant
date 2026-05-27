@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Restore .NET
+        run: dotnet restore JobWorkflow.sln
+
+      - name: Build .NET API
+        run: dotnet build JobWorkflow.sln --configuration Release --no-restore
+
+      - name: Install client dependencies
+        run: npm ci
+
+      - name: Build React client
+        run: npm run build --workspace client

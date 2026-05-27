@@ -2,15 +2,17 @@
   "name": "ai-job-application-assistant",
   "version": "1.0.0",
   "private": true,
-  "description": "Agent-based AI job application assistant MVP.",
+  "description": "Job application workflow platform with .NET API, React client, reminders, and AI-assisted match summaries.",
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace server\" \"npm run dev --workspace client\"",
+    "dev": "concurrently \"dotnet run --project api/JobWorkflow.Api\" \"npm run dev --workspace client\"",
+    "dev:api": "dotnet run --project api/JobWorkflow.Api",
+    "dev:client": "npm run dev --workspace client",
+    "build:api": "dotnet build JobWorkflow.sln",
     "build": "npm run build --workspace client",
-    "start": "npm run start --workspace server"
+    "start": "dotnet run --project api/JobWorkflow.Api"
   },
   "workspaces": [
-    "client",
-    "server"
+    "client"
   ],
   "devDependencies": {
     "concurrently": "^8.2.2"
