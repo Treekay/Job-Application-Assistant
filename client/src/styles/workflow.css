@@ -6,10 +6,11 @@
 
 .workflowAuth {
   display: grid;
-  grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 0.55fr);
-  gap: 28px;
+  grid-template-columns: minmax(420px, 720px) minmax(360px, 460px);
+  justify-content: center;
+  gap: 30px;
   align-items: center;
-  padding: 44px;
+  padding: 44px 32px;
 }
 
 .workflowPoster,
@@ -48,7 +49,7 @@
 .workflowPoster h1 {
   max-width: 720px;
   margin: 14px 0;
-  font-size: clamp(3rem, 7vw, 5.8rem);
+  font-size: clamp(2.8rem, 4.6vw, 4.7rem);
   line-height: 0.92;
 }
 
