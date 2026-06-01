@@ -63,6 +63,7 @@ builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<CvTextExtractor>();
 builder.Services.AddHttpClient<MatchSummaryService>();
+builder.Services.AddHttpClient<ApplicationMaterialService>();
 builder.Services.AddHttpClient<JobPostingImporter>();
 builder.Services.AddSingleton<EmailTemplateService>();
 builder.Services.AddHostedService<ReminderWorker>();

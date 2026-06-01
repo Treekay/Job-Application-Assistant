@@ -17,6 +17,7 @@ public sealed class JobApplication
     public DateTimeOffset? Deadline { get; set; }
     public string? MatchSummary { get; set; }
     public string? MissingSkills { get; set; }
+    public string? MatchAnalysisJson { get; set; }
     public string? Notes { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;

@@ -22,6 +22,10 @@ public sealed class DatabaseInitializer(AppDbContext db)
                 "JobApplications",
                 "JobDescription",
                 "nvarchar(max) NULL");
+            await AddColumnIfMissingAsync(
+                "JobApplications",
+                "MatchAnalysisJson",
+                "nvarchar(max) NULL");
             return;
         }
 
@@ -30,6 +34,7 @@ public sealed class DatabaseInitializer(AppDbContext db)
             await AddSqliteColumnIfMissingAsync("CvDocuments", "FileBytes", "BLOB NULL");
             await AddSqliteColumnIfMissingAsync("CvDocuments", "ContentType", "TEXT NULL");
             await AddSqliteColumnIfMissingAsync("JobApplications", "JobDescription", "TEXT NULL");
+            await AddSqliteColumnIfMissingAsync("JobApplications", "MatchAnalysisJson", "TEXT NULL");
         }
     }
 

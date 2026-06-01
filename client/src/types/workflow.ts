@@ -27,12 +27,31 @@ export interface WorkflowApplication {
   deadline?: string;
   matchSummary?: string;
   missingSkills?: string;
+  matchAnalysis?: WorkflowMatchAnalysis;
   notes?: string;
   cvDocumentId?: string;
   createdAt: string;
   updatedAt: string;
   documents: WorkflowDocument[];
   reminders: WorkflowReminder[];
+}
+
+export interface WorkflowRequirementAnalysis {
+  requirement: string;
+  priority: "High" | "Medium" | "Low" | string;
+  evidence: string;
+  notes: string;
+}
+
+export interface WorkflowMatchAnalysis {
+  summary: string;
+  missingSkills: string;
+  score: number;
+  matchedRequirements: WorkflowRequirementAnalysis[];
+  missingRequirements: WorkflowRequirementAnalysis[];
+  evidence: string[];
+  recommendations: string[];
+  finalReport: string;
 }
 
 export interface WorkflowDocument {

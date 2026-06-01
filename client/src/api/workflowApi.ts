@@ -4,7 +4,8 @@ import type {
   WorkflowApplication,
   WorkflowAuthResponse,
   WorkflowDocument,
-  WorkflowDashboard
+  WorkflowDashboard,
+  WorkflowMatchAnalysis
 } from "../types/workflow";
 
 const API_BASE_URL = import.meta.env.VITE_WORKFLOW_API_URL || "http://localhost:5043";
@@ -168,6 +169,26 @@ export function deleteWorkflowApplication(id: string): Promise<void> {
   });
 }
 
+export function updateWorkflowApplication(
+  id: string,
+  input: {
+    companyName: string;
+    roleTitle: string;
+    jobUrl?: string;
+    jobDescription?: string;
+    source?: string;
+    priority: ApplicationPriority;
+    cvDocumentId?: string;
+    deadline?: string;
+    notes?: string;
+  }
+): Promise<WorkflowApplication> {
+  return requestJson(`/api/applications/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input)
+  });
+}
+
 export function updateWorkflowStatus(
   id: string,
   status: ApplicationStatus,
@@ -223,10 +244,22 @@ export function addWorkflowReminder(
 export function generateWorkflowMatchSummary(
   id: string,
   jobDescription: string
-): Promise<{ summary: string; missingSkills: string; score: number }> {
+): Promise<WorkflowMatchAnalysis> {
   return requestJson(`/api/applications/${id}/match-summary`, {
     method: "POST",
     body: JSON.stringify({ jobDescription })
+  });
+}
+
+export function generateWorkflowCoverLetter(id: string): Promise<{ content: string }> {
+  return requestJson(`/api/applications/${id}/cover-letter/draft`, {
+    method: "POST"
+  });
+}
+
+export function generateWorkflowEmail(id: string): Promise<{ content: string }> {
+  return requestJson(`/api/applications/${id}/email/draft`, {
+    method: "POST"
   });
 }
 

@@ -92,6 +92,7 @@
 .workflowForm select,
 .workflowForm textarea,
 .workflowDetail input,
+.workflowDetail select,
 .workflowDetail textarea,
 .workflowApplicationCard select {
   width: 100%;
@@ -108,6 +109,32 @@
 .workflowDetail textarea {
   min-height: 126px;
   resize: vertical;
+}
+
+.workflowDetailForm {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  background: #f8faf8;
+  border: 1px solid #e4ebe7;
+  border-radius: 8px;
+}
+
+.applicationEditGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.applicationEditGrid label {
+  display: grid;
+  gap: 7px;
+  color: #214c40;
+  font-weight: 800;
+}
+
+.applicationEditGrid .wideField {
+  grid-column: 1 / -1;
 }
 
 .workflowAuthPanel button,
@@ -583,6 +610,81 @@
   color: #17211d;
 }
 
+.requirementList {
+  display: grid;
+  gap: 10px;
+}
+
+.requirementItem {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid #dfe7e2;
+  border-radius: 8px;
+}
+
+.requirementItem > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.priorityText {
+  white-space: nowrap;
+  font-weight: 850;
+}
+
+.priorityHigh {
+  color: #d92d20;
+}
+
+.priorityMedium {
+  color: #d17a00;
+}
+
+.priorityLow {
+  color: #0d8f68;
+}
+
+.markdownBlock {
+  max-height: 360px;
+  overflow: auto;
+  margin: 0;
+  padding: 12px;
+  color: #17211d;
+  background: #ffffff;
+  border: 1px solid #dfe7e2;
+  border-radius: 8px;
+}
+
+.markdownBlock h3,
+.markdownBlock h4,
+.markdownBlock p {
+  margin: 0 0 10px;
+}
+
+.markdownBlock h3 {
+  font-size: 1.05rem;
+}
+
+.markdownBlock h4 {
+  font-size: 0.98rem;
+}
+
+.markdownList {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .fitScore {
   display: inline-flex;
   width: fit-content;
@@ -617,6 +719,7 @@
   .workflowShell,
   .workflowTwoColumn,
   .workflowDetailGrid,
+  .applicationEditGrid,
   .applicationFormGrid,
   .cvLibraryPage,
   .cvCreateGrid,

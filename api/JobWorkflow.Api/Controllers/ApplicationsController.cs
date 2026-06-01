@@ -5,13 +5,17 @@ using JobWorkflow.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace JobWorkflow.Api.Controllers;
 
 [ApiController]
 [Authorize]
 [Route("api/applications")]
-public sealed class ApplicationsController(AppDbContext db, MatchSummaryService matches) : ControllerBase
+public sealed class ApplicationsController(
+    AppDbContext db,
+    MatchSummaryService matches,
+    ApplicationMaterialService materials) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<ApplicationDto>>> List()
@@ -61,6 +65,37 @@ public sealed class ApplicationsController(AppDbContext db, MatchSummaryService 
             .SingleOrDefaultAsync();
 
         return application is null ? NotFound() : Ok(ApplicationDto.From(application));
+    }
+
+    [HttpPatch("{id:guid}")]
+    public async Task<ActionResult<ApplicationDto>> Update(Guid id, UpdateApplicationRequest request)
+    {
+        var application = await FindOwnedApplication(id)
+            .Include(app => app.Documents)
+            .Include(app => app.Reminders)
+            .SingleOrDefaultAsync();
+        if (application is null) return NotFound();
+
+        if (request.CvDocumentId is not null)
+        {
+            var userId = User.UserId();
+            var ownsCv = await db.CvDocuments.AnyAsync(cv => cv.Id == request.CvDocumentId && cv.UserId == userId);
+            if (!ownsCv) return BadRequest(new { message = "Selected CV does not exist." });
+        }
+
+        application.CompanyName = request.CompanyName.Trim();
+        application.RoleTitle = request.RoleTitle.Trim();
+        application.JobUrl = request.JobUrl?.Trim();
+        application.JobDescription = request.JobDescription?.Trim();
+        application.Source = request.Source?.Trim() ?? "Manual";
+        application.Priority = request.Priority;
+        application.CvDocumentId = request.CvDocumentId;
+        application.Deadline = request.Deadline;
+        application.Notes = request.Notes?.Trim();
+        application.UpdatedAt = DateTimeOffset.UtcNow;
+
+        await db.SaveChangesAsync();
+        return Ok(ApplicationDto.From(application));
     }
 
     [HttpPatch("{id:guid}/status")]
@@ -167,9 +202,32 @@ public sealed class ApplicationsController(AppDbContext db, MatchSummaryService 
         var summary = await matches.GenerateAsync(application, request.JobDescription);
         application.MatchSummary = summary.Summary;
         application.MissingSkills = summary.MissingSkills;
+        application.MatchAnalysisJson = JsonSerializer.Serialize(summary, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         application.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync();
         return Ok(summary);
+    }
+
+    [HttpPost("{id:guid}/cover-letter/draft")]
+    public async Task<ActionResult<GeneratedMaterialResponse>> GenerateCoverLetter(Guid id)
+    {
+        var application = await FindOwnedApplication(id)
+            .Include(app => app.CvDocument)
+            .SingleOrDefaultAsync();
+        if (application is null) return NotFound();
+
+        return Ok(await materials.GenerateCoverLetterAsync(application));
+    }
+
+    [HttpPost("{id:guid}/email/draft")]
+    public async Task<ActionResult<GeneratedMaterialResponse>> GenerateEmail(Guid id)
+    {
+        var application = await FindOwnedApplication(id)
+            .Include(app => app.CvDocument)
+            .SingleOrDefaultAsync();
+        if (application is null) return NotFound();
+
+        return Ok(await materials.GenerateEmailAsync(application));
     }
 
     private IQueryable<JobApplication> FindOwnedApplication(Guid id)

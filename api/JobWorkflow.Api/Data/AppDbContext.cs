@@ -49,6 +49,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             entity.Property(app => app.Notes).HasMaxLength(4000);
             entity.Property(app => app.MatchSummary).HasMaxLength(4000);
             entity.Property(app => app.MissingSkills).HasMaxLength(2000);
+            if (Database.IsSqlServer())
+            {
+                entity.Property(app => app.MatchAnalysisJson).HasColumnType("nvarchar(max)");
+            }
             entity.HasMany(app => app.NotesHistory)
                 .WithOne(note => note.JobApplication)
                 .HasForeignKey(note => note.JobApplicationId)
