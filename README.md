@@ -20,12 +20,12 @@ The legacy Node/Express backend has been removed. The active backend is the .NET
 ## Product Scope
 
 - User registration, login, and reset-password token flow
-- Upload CV files (`.pdf`, `.docx`, `.txt`, `.md`, and `.rtf`) or paste CV text into the CV library. Legacy `.doc` files should be saved as `.docx` or PDF before upload.
+- Upload PDF CV files into the CV library. The platform stores the original PDF for preview and extracts text for AI matching.
 - Save job applications independently of AI analysis
 - Import a job posting from its original URL and keep the source link on the application
 - Status workflow: Saved / Applied / Interview / Offer / Rejected
 - Associate each role with CV, job description, cover letter, email draft, notes, and deadline
-- Generate match summary and missing skills for a target job
+- Generate structured AI match analysis, missing requirements, recommendations, final report, cover letter drafts, and outreach email drafts for a target job
 - Follow-up / interview / deadline reminders
 - Dashboard statistics by status, priority, and upcoming deadlines
 - Optional role-based admin endpoint
@@ -46,7 +46,7 @@ dotnet restore JobWorkflow.sln
 npm run dev
 ```
 
-Client: http://localhost:5173  
+Client: http://localhost:5173
 API: http://localhost:5043
 
 Windows shortcut:
@@ -67,7 +67,7 @@ Stop from Git Bash:
 ./stop-dev.sh
 ```
 
-或者：
+Or from CMD:
 
 ```bash
 ./start-dev.cmd
